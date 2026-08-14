@@ -4,7 +4,8 @@
   const KEY='ict-day-papers-cropped-v1';
   const total=data.reduce((s,p)=>s+p.questions.length,0);
   window.QUIZ_PACKS=window.QUIZ_PACKS||{};
-  const packPromises={};
+  let bundlePromise=null;
+  const BUNDLE_PARTS=73;
   let state={screen:'home',mode:'all',paper:null,index:0,answers:{},saved:[],zoom:''};
   const pad=n=>String(n).padStart(2,'0');
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -12,20 +13,23 @@
   function store(){localStorage.setItem(KEY,JSON.stringify(state));}
   function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.answers) state={...state,...s,screen:'home',zoom:''};}catch{}}
   function sessionQuestions(){return state.mode==='all'?data.flatMap(p=>p.questions.map(q=>({...q,paper:p.number,title:p.title}))):state.paper.questions.map(q=>({...q,paper:state.paper.number,title:state.paper.title}));}
-  function packPath(pn){return `packs/phy-${pad(pn)}.js`;}
-  function ensurePack(pn){
-    if(window.QUIZ_PACKS[pn]) return Promise.resolve(window.QUIZ_PACKS[pn]);
-    if(packPromises[pn]) return packPromises[pn];
-    packPromises[pn]=new Promise((resolve,reject)=>{
-      const s=document.createElement('script');
-      s.src=packPath(pn); s.async=true;
-      s.onload=()=>window.QUIZ_PACKS[pn]?resolve(window.QUIZ_PACKS[pn]):reject(new Error('Crop pack missing'));
-      s.onerror=()=>reject(new Error('Crop pack load failed'));
-      document.head.appendChild(s);
-    }).catch(err=>{delete packPromises[pn];throw err});
-    return packPromises[pn];
+  async function ensureCrops(){
+    if(Object.keys(window.QUIZ_PACKS).length===21) return window.QUIZ_PACKS;
+    if(bundlePromise) return bundlePromise;
+    bundlePromise=(async()=>{
+      const urls=Array.from({length:BUNDLE_PARTS},(_,i)=>`bundle/part-${String(i+1).padStart(3,'0')}.txt`);
+      const parts=await Promise.all(urls.map(async u=>{const r=await fetch(u,{cache:'force-cache'});if(!r.ok)throw new Error(`Missing crop bundle: ${u}`);return r.text();}));
+      const bin=atob(parts.join(''));
+      const bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+      const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      const json=await new Response(stream).text();
+      window.QUIZ_PACKS=JSON.parse(json);
+      return window.QUIZ_PACKS;
+    })().catch(err=>{bundlePromise=null;throw err});
+    return bundlePromise;
   }
-  function cropFor(pn,qn){return window.QUIZ_PACKS[pn]?.find(x=>x.number===qn)||null;}
+  function cropFor(pn,qn){return window.QUIZ_PACKS[String(pn)]?.find(x=>x.number===qn)||null;}
   function answeredInPaper(p){return p.questions.filter(q=>state.answers[key(p.number,q.number)]!==undefined).length}
   function startPaper(n){state.mode='paper';state.paper=data.find(p=>p.number===n);state.index=0;state.screen='quiz';store();render();scrollTo(0,0)}
   function startAll(){state.mode='all';state.paper=null;state.index=0;state.screen='quiz';store();render();scrollTo(0,0)}
@@ -52,7 +56,7 @@
     if(!crop){
       root.innerHTML=`<main class="quiz"><header class="quiz-header"><button class="icon" data-home>←</button><div class="qtitle"><small>${state.mode==='all'?'ALL PAPERS':'PAPER MODE'}</small><strong>${esc(q.title)}</strong></div><div class="counter">${state.index+1}/${qs.length}</div></header><div class="top-progress"><i style="width:${pct}%"></i></div><section class="stage"><div class="loading-card" style="min-height:360px;background:#fff;border:1px solid #dce4ef;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#71809a"><strong style="color:#12223f;font-size:18px">Original crop loading…</strong><span style="font-size:12px">${esc(q.title)} · Question ${q.number}</span></div></section></main><div id="modal"></div>`;
       root.querySelector('[data-home]').onclick=home;
-      ensurePack(q.paper).then(()=>render()).catch(()=>{root.querySelector('.loading-card').innerHTML='<strong>Crop load වුණේ නැහැ.</strong><span>Page එක refresh කර නැවත try කරන්න.</span>';});
+      ensureCrops().then(()=>render()).catch(()=>{root.querySelector('.loading-card').innerHTML='<strong>Crop load වුණේ නැහැ.</strong><span>Page එක refresh කර නැවත try කරන්න.</span>';});
       return;
     }
     root.innerHTML=`<main class="quiz"><header class="quiz-header"><button class="icon" data-home>←</button><div class="qtitle"><small>${state.mode==='all'?'ALL PAPERS':'PAPER MODE'}</small><strong>${esc(q.title)}</strong></div><div class="counter">${state.index+1}/${qs.length}</div></header><div class="top-progress"><i style="width:${pct}%"></i></div><section class="stage"><div class="qmeta"><div><span class="qkicker">${esc(q.title)} · QUESTION ${q.number}</span><h1>නිවැරදි පිළිතුර තෝරන්න</h1></div><button class="save ${saved?'on':''}" data-save>${saved?'★ Saved':'☆ Save'}</button></div>
