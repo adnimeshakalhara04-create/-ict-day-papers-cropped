@@ -23,11 +23,5 @@ window.QUIZ_DATA = [
 ].map(p => ({
   number:p.n,
   title:`PHY ${String(p.n).padStart(2,'0')}`,
-  answers:p.a,
-  questions:p.a.map((answer,i)=>({
-    number:i+1,
-    answer,
-    question:`assets/questions/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp`,
-    marking:`assets/markings/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp`
-  }))
+  questions:p.a.map((answer,i)=>({number:i+1,answer}))
 }));
