@@ -1,3 +1,5 @@
+const ASSET_VERSION = '20260814-r2';
+
 window.QUIZ_DATA = [
   {n:1,a:[2,3,2,4,2,2,5]},
   {n:2,a:[2,2,2,3,3,2]},
@@ -27,7 +29,7 @@ window.QUIZ_DATA = [
   questions:p.a.map((answer,i)=>({
     number:i+1,
     answer,
-    question:`assets/questions/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp`,
-    marking:`assets/markings/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp`
+    question:`assets/questions/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp?v=${ASSET_VERSION}`,
+    marking:`assets/markings/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp?v=${ASSET_VERSION}`
   }))
 }));
