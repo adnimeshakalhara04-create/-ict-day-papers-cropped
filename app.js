@@ -5,7 +5,7 @@
   const total=data.reduce((s,p)=>s+p.questions.length,0);
   window.QUIZ_PACKS=window.QUIZ_PACKS||{};
   let bundlePromise=null;
-  const BUNDLE_PARTS=73;
+  const BUNDLE_PARTS=82;
   let state={screen:'home',mode:'all',paper:null,index:0,answers:{},saved:[],zoom:''};
   const pad=n=>String(n).padStart(2,'0');
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
