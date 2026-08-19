@@ -1,4 +1,4 @@
-const ASSET_VERSION = '20260814-r2';
+const ASSET_VERSION = '20260819-r7';
 
 window.QUIZ_DATA = [
   {n:1,a:[2,3,2,4,2,2,5]},
@@ -21,15 +21,21 @@ window.QUIZ_DATA = [
   {n:18,a:[4,3,4,3,3,2,3,3]},
   {n:19,a:[1,2,3,1]},
   {n:20,a:[3,1,2,3,2,3]},
-  {n:21,a:[4,1,2,2]}
+  {n:21,a:[4,1,2,2]},
+  {n:22,a:[3,3,5,3,3,2]}
 ].map(p => ({
   number:p.n,
   title:`PHY ${String(p.n).padStart(2,'0')}`,
   answers:p.a,
-  questions:p.a.map((answer,i)=>({
-    number:i+1,
-    answer,
-    question:`assets/questions/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp?v=${ASSET_VERSION}`,
-    marking:`assets/markings/phy-${String(p.n).padStart(2,'0')}/q-${String(i+1).padStart(2,'0')}.webp?v=${ASSET_VERSION}`
-  }))
+  questions:p.a.map((answer,i)=>{
+    const folder=`phy-${String(p.n).padStart(2,'0')}`;
+    const file=`q-${String(i+1).padStart(2,'0')}`;
+    const ext=p.n===22?'png':'webp';
+    return {
+      number:i+1,
+      answer,
+      question:`assets/questions/${folder}/${file}.${ext}?v=${ASSET_VERSION}`,
+      marking:`assets/markings/${folder}/${file}.${ext}?v=${ASSET_VERSION}`
+    };
+  })
 }));
