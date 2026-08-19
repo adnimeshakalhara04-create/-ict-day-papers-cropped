@@ -5,8 +5,9 @@
 
   const KEY='ict-day-papers-cropped-v1';
   const total=Array.isArray(data)?data.reduce((s,p)=>s+p.questions.length,0):0;
-  if(!Array.isArray(data)||data.length!==21||total!==126){
-    root.innerHTML='<main class="quiz"><section class="stage"><div class="answer-box"><div class="feedback bad"><div class="mark">!</div><div><strong>Quiz data validation failed.</strong><p>Expected 21 day papers and 126 questions. Please refresh after the latest deployment finishes.</p></div></div></div></section></main>';
+  const paperCount=Array.isArray(data)?data.length:0;
+  if(!Array.isArray(data)||paperCount<22||total<132){
+    root.innerHTML='<main class="quiz"><section class="stage"><div class="answer-box"><div class="feedback bad"><div class="mark">!</div><div><strong>Quiz data validation failed.</strong><p>Expected 22 day papers and 132 questions. Please refresh after the latest deployment finishes.</p></div></div></div></section></main>';
     return;
   }
 
@@ -23,16 +24,31 @@
     state.paper=data.find(p=>p.number===n);
     const nextUnanswered=state.paper.questions.findIndex(q=>state.answers[key(state.paper.number,q.number)]===undefined);
     state.index=nextUnanswered>=0?nextUnanswered:0;
-    state.screen='quiz';store();render();scrollTo(0,0)
+    state.screen='quiz';store();render();scrollTo(0,0);
   }
-  function startAll(){state.mode='all';state.paper=null;const qs=data.flatMap(p=>p.questions.map(q=>({...q,paper:p.number})));const next=qs.findIndex(q=>state.answers[key(q.paper,q.number)]===undefined);state.index=next>=0?next:0;state.screen='quiz';store();render();scrollTo(0,0)}
+  function startAll(){state.mode='all';state.paper=null;const qs=data.flatMap(p=>p.questions.map(q=>({...q,paper:p.number})));const next=qs.findIndex(q=>state.answers[key(q.paper,q.number)]===undefined);state.index=next>=0?next:0;state.screen='quiz';store();render();scrollTo(0,0);}
   function choose(c){const qs=sessionQuestions(),q=qs[state.index],k=key(q.paper,q.number);if(state.answers[k]!==undefined)return;state.answers[k]=c;store();render();}
-  function nav(delta){const qs=sessionQuestions();state.index=Math.max(0,Math.min(qs.length-1,state.index+delta));store();render();scrollTo(0,0)}
-  function toggleSave(){const qs=sessionQuestions(),q=qs[state.index],k=key(q.paper,q.number);state.saved=state.saved.includes(k)?state.saved.filter(x=>x!==k):[...state.saved,k];store();render()}
-  function showResults(){state.screen='results';store();render();scrollTo(0,0)}
-  function home(){state.screen='home';store();render();scrollTo(0,0)}
-  function zoom(src){state.zoom=src;renderModal()}
-  function closeZoom(){state.zoom='';renderModal()}
+  function nav(delta){const qs=sessionQuestions();state.index=Math.max(0,Math.min(qs.length-1,state.index+delta));store();render();scrollTo(0,0);}
+  function toggleSave(){const qs=sessionQuestions(),q=qs[state.index],k=key(q.paper,q.number);state.saved=state.saved.includes(k)?state.saved.filter(x=>x!==k):[...state.saved,k];store();render();}
+  function showResults(){state.screen='results';store();render();scrollTo(0,0);}
+  function home(){state.screen='home';store();render();scrollTo(0,0);}
+  function clearPaperProgress(n){
+    const prefix=`p${n}q`;
+    Object.keys(state.answers).forEach(k=>{if(k.startsWith(prefix)) delete state.answers[k];});
+    state.saved=state.saved.filter(k=>!k.startsWith(prefix));
+  }
+  function resetPaper(n,startAfter=false){
+    clearPaperProgress(n);
+    if(startAfter){
+      state.mode='paper';
+      state.paper=data.find(p=>p.number===n);
+      state.index=0;
+      state.screen='quiz';
+    }else state.screen='home';
+    store();render();scrollTo(0,0);
+  }
+  function zoom(src){state.zoom=src;renderModal();}
+  function closeZoom(){state.zoom='';renderModal();}
   function bindAssetErrors(){
     root.querySelectorAll('.crop-card img,.marking img').forEach(img=>{
       img.addEventListener('error',()=>{
@@ -45,12 +61,13 @@
 
   function renderHome(){
     const last=state.mode==='paper'&&state.paper?data.find(p=>p.number===state.paper.number):null;
-    root.innerHTML=`<main class="home"><div class="wrap"><header class="header"><div class="brand"><span class="brand-badge">IT</span><span><strong>ICT Day Papers</strong><small>2028 QUIZ STUDIO</small></span></div><div class="pill">PHY 01–21 · Original Sinhala crops</div></header>
-    <section class="hero"><div><p class="eyebrow">Information &amp; Communication Technology</p><h1>Turn every day paper<span>into exam-ready practice.</span></h1><p class="lead">ප්‍රශ්න පත්‍ර 21ක ප්‍රශ්න ${total}ම original paper crop ලෙස. පිළිතුරක් තෝරලා ඉවර වුණාම එම ප්‍රශ්නයටම අදාළ official marking explanation crop එකම පෙන්වයි.</p><div class="actions"><button class="btn primary" data-all>ප්‍රශ්න ${total}ම පටන් ගන්න →</button>${last?`<button class="btn secondary" data-paper="${last.number}">දිගටම ${esc(last.title)} <span>${answeredInPaper(last)}/${last.questions.length}</span></button>`:''}</div><div class="stats"><div><strong>${total}</strong><span>QUESTIONS</span></div><div><strong>21</strong><span>DAY PAPERS</span></div><div><strong>5</strong><span>CHOICES EACH</span></div></div></div>
+    root.innerHTML=`<main class="home"><div class="wrap"><header class="header"><div class="brand"><span class="brand-badge">IT</span><span><strong>ICT Day Papers</strong><small>2028 QUIZ STUDIO</small></span></div><div class="pill">PHY 01–${pad(paperCount)} · Original Sinhala crops</div></header>
+    <section class="hero"><div><p class="eyebrow">Information &amp; Communication Technology</p><h1>Turn every day paper<span>into exam-ready practice.</span></h1><p class="lead">ප්‍රශ්න පත්‍ර ${paperCount}ක ප්‍රශ්න ${total}ම original paper crop ලෙස. පිළිතුරක් තෝරලා ඉවර වුණාම එම ප්‍රශ්නයටම අදාළ official marking explanation crop එකම පෙන්වයි.</p><div class="actions"><button class="btn primary" data-all>ප්‍රශ්න ${total}ම පටන් ගන්න →</button>${last?`<button class="btn secondary" data-paper="${last.number}">දිගටම ${esc(last.title)} <span>${answeredInPaper(last)}/${last.questions.length}</span></button>`:''}</div><div class="stats"><div><strong>${total}</strong><span>QUESTIONS</span></div><div><strong>${paperCount}</strong><span>DAY PAPERS</span></div><div><strong>5</strong><span>CHOICES EACH</span></div></div></div>
     <div class="demo-wrap"><div class="orbit"></div><div class="orbit b"></div><div class="demo"><div class="demo-top"><span>LIVE PRACTICE</span><span>PHY 01</span></div><div class="track"><i></i></div><div class="mini">QUESTION 5 OF 7</div><h2>Choose your answer</h2><div class="answers-preview">${[1,2,3,4,5].map(n=>`<span class="${n===2?'on':''}">${n}</span>`).join('')}</div><div class="demo-ok"><b>✓</b><div><strong>Official marking crop</strong><small>Sinhala explanation from source</small></div></div></div></div></section>
-    <section class="papers"><div class="section-head"><div><p class="eyebrow">PAPER MODE</p><h2>PHY 01 සිට PHY 21 දක්වා</h2></div><p>Paper එකක් තෝරලා එකින් එක practice කරන්න. Progress, score සහ Save කළ ප්‍රශ්න ඔබේ device එකේම තබා ගනී.</p></div><div class="paper-grid">${data.map(p=>{const a=answeredInPaper(p),pc=Math.round(a/p.questions.length*100);return `<button class="paper-card" data-paper="${p.number}"><div class="paper-top"><span class="paper-number">${pad(p.number)}</span><span class="paper-count">${p.questions.length} questions</span></div><h3>${esc(p.title)}</h3><div class="paper-progress"><i style="width:${pc}%"></i></div><div class="paper-foot"><span>${a?`${a}/${p.questions.length} completed`:'Not started'}</span><span>↗</span></div></button>`}).join('')}</div></section><footer class="footer"><span>Source papers & markings: Ravindu Bandaranayake · #ictfromabc.</span><span>Progress is stored only on your device.</span></footer></div></main><div id="modal"></div>`;
+    <section class="papers"><div class="section-head"><div><p class="eyebrow">PAPER MODE</p><h2>PHY 01 සිට PHY ${pad(paperCount)} දක්වා</h2></div><p>Paper එකක් තෝරලා එකින් එක practice කරන්න. Progress, score සහ Save කළ ප්‍රශ්න ඔබේ device එකේම තබා ගනී.</p></div><div class="paper-grid">${data.map(p=>{const a=answeredInPaper(p),pc=Math.round(a/p.questions.length*100),complete=a===p.questions.length;return `<div class="paper-card-wrap"><button class="paper-card" data-paper="${p.number}"><div class="paper-top"><span class="paper-number">${pad(p.number)}</span><span class="paper-count">${p.questions.length} questions</span></div><h3>${esc(p.title)}</h3><div class="paper-progress"><i style="width:${pc}%"></i></div><div class="paper-foot"><span>${a?`${a}/${p.questions.length} completed`:'Not started'}</span><span>↗</span></div></button>${complete?`<button class="paper-reset" data-reset-paper="${p.number}">↻ Reset &amp; redo ${esc(p.title)}</button>`:''}</div>`}).join('')}</div></section><footer class="footer"><span>Source papers & markings: Ravindu Bandaranayake · #ictfromabc.</span><span>Progress is stored only on your device.</span></footer></div></main><div id="modal"></div>`;
     root.querySelector('[data-all]').onclick=startAll;
     root.querySelectorAll('[data-paper]').forEach(b=>b.onclick=()=>startPaper(Number(b.dataset.paper)));
+    root.querySelectorAll('[data-reset-paper]').forEach(b=>b.onclick=()=>resetPaper(Number(b.dataset.resetPaper),true));
   }
 
   function renderQuiz(){
@@ -68,11 +85,13 @@
   }
 
   function renderResults(){
-    const qs=sessionQuestions();let answered=0,correct=0;qs.forEach(q=>{const v=state.answers[key(q.paper,q.number)];if(v!==undefined)answered++;if(v===q.answer)correct++});const wrong=answered-correct,unanswered=qs.length-answered,pct=Math.round(correct/qs.length*100);
-    root.innerHTML=`<main class="results"><section class="result-card"><p class="eyebrow">SESSION COMPLETE</p><div class="score" style="--score:${pct*3.6}deg"><div><strong>${pct}%</strong><span>නිවැරදි ප්‍රතිශතය</span></div></div><h1>${pct>=80?'ඉතා හොඳයි!':pct>=60?'හොඳ ප්‍රගතියක්.':'තව practice කරමු.'}</h1><p>${state.mode==='all'?'PHY 01–21 සියල්ල':esc(state.paper.title)} · ${correct}/${qs.length} නිවැරදි</p><div class="result-stats"><div><span>නිවැරදි</span><strong>${correct}</strong></div><div><span>වැරදි</span><strong>${wrong}</strong></div><div><span>නොකළ</span><strong>${unanswered}</strong></div></div><div class="actions" style="justify-content:center"><button class="btn primary" data-review>ප්‍රශ්න නැවත බලන්න →</button><button class="btn secondary" style="color:#263956;border-color:#dce5f1;background:#f6f8fc" data-home>පේපර් ලැයිස්තුව</button></div></section></main><div id="modal"></div>`;
-    root.querySelector('[data-review]').onclick=()=>{state.screen='quiz';state.index=0;store();render();};root.querySelector('[data-home]').onclick=home;
+    const qs=sessionQuestions();let answered=0,correct=0;qs.forEach(q=>{const v=state.answers[key(q.paper,q.number)];if(v!==undefined)answered++;if(v===q.answer)correct++;});const wrong=answered-correct,unanswered=qs.length-answered,pct=Math.round(correct/qs.length*100);
+    root.innerHTML=`<main class="results"><section class="result-card"><p class="eyebrow">SESSION COMPLETE</p><div class="score" style="--score:${pct*3.6}deg"><div><strong>${pct}%</strong><span>නිවැරදි ප්‍රතිශතය</span></div></div><h1>${pct>=80?'ඉතා හොඳයි!':pct>=60?'හොඳ ප්‍රගතියක්.':'තව practice කරමු.'}</h1><p>${state.mode==='all'?`PHY 01–${pad(paperCount)} සියල්ල`:esc(state.paper.title)} · ${correct}/${qs.length} නිවැරදි</p><div class="result-stats"><div><span>නිවැරදි</span><strong>${correct}</strong></div><div><span>වැරදි</span><strong>${wrong}</strong></div><div><span>නොකළ</span><strong>${unanswered}</strong></div></div><div class="actions" style="justify-content:center"><button class="btn primary" data-review>ප්‍රශ්න නැවත බලන්න →</button>${state.mode==='paper'?`<button class="btn reset-btn" data-reset-current>↻ Reset කරලා ආයෙ කරන්න</button>`:''}<button class="btn secondary" style="color:#263956;border-color:#dce5f1;background:#f6f8fc" data-home>පේපර් ලැයිස්තුව</button></div></section></main><div id="modal"></div>`;
+    root.querySelector('[data-review]').onclick=()=>{state.screen='quiz';state.index=0;store();render();};
+    root.querySelector('[data-home]').onclick=home;
+    const resetCurrent=root.querySelector('[data-reset-current]');if(resetCurrent)resetCurrent.onclick=()=>resetPaper(state.paper.number,true);
   }
-  function renderModal(){const m=document.getElementById('modal');if(!m)return;if(!state.zoom){m.innerHTML='';return;}m.innerHTML=`<div class="modal open"><button data-close>×</button><img src="${state.zoom}" alt="Expanded crop"></div>`;m.querySelector('[data-close]').onclick=closeZoom;m.querySelector('.modal').onclick=e=>{if(e.target.classList.contains('modal'))closeZoom()}}
+  function renderModal(){const m=document.getElementById('modal');if(!m)return;if(!state.zoom){m.innerHTML='';return;}m.innerHTML=`<div class="modal open"><button data-close>×</button><img src="${state.zoom}" alt="Expanded crop"></div>`;m.querySelector('[data-close]').onclick=closeZoom;m.querySelector('.modal').onclick=e=>{if(e.target.classList.contains('modal'))closeZoom();};}
   function render(){if(state.screen==='home')renderHome();else if(state.screen==='quiz')renderQuiz();else renderResults();renderModal();}
   load();render();
 })();
