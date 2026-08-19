@@ -4,39 +4,45 @@ set -euo pipefail
 PART0="assets-pack.part-00"
 PART1="assets-pack.part-01"
 ZIP="/tmp/ict-day-papers-assets.zip"
-EXPECTED=(0 7 6 7 7 6 5 5 5 6 6 4 6 6 6 7 7 8 8 4 6 4)
+EXPECTED=(0 7 6 7 7 6 5 5 5 6 6 4 6 6 6 7 7 8 8 4 6 4 6)
+
+count_crops() {
+  find "$1" -type f \( -name '*.webp' -o -name '*.png' \) | wc -l | tr -d ' '
+}
 
 verify_assets() {
   [[ -d assets/questions && -d assets/markings ]] || return 1
 
-  local q_total m_total n folder expected q_count m_count i file
-  q_total=$(find assets/questions -type f -name '*.webp' | wc -l | tr -d ' ')
-  m_total=$(find assets/markings -type f -name '*.webp' | wc -l | tr -d ' ')
+  local q_total m_total n folder expected q_count m_count i file ext
+  q_total=$(count_crops assets/questions)
+  m_total=$(count_crops assets/markings)
 
-  [[ "$q_total" == "126" ]] || { echo "Expected 126 question crops, got $q_total"; return 1; }
-  [[ "$m_total" == "126" ]] || { echo "Expected 126 marking crops, got $m_total"; return 1; }
+  [[ "$q_total" == "132" ]] || { echo "Expected 132 question crops, got $q_total"; return 1; }
+  [[ "$m_total" == "132" ]] || { echo "Expected 132 marking crops, got $m_total"; return 1; }
 
-  for n in $(seq 1 21); do
+  for n in $(seq 1 22); do
     folder=$(printf 'phy-%02d' "$n")
     expected=${EXPECTED[$n]}
+    ext='webp'
+    [[ "$n" == "22" ]] && ext='png'
 
     [[ -d "assets/questions/$folder" ]] || { echo "Missing assets/questions/$folder"; return 1; }
     [[ -d "assets/markings/$folder" ]] || { echo "Missing assets/markings/$folder"; return 1; }
 
-    q_count=$(find "assets/questions/$folder" -maxdepth 1 -type f -name 'q-*.webp' | wc -l | tr -d ' ')
-    m_count=$(find "assets/markings/$folder" -maxdepth 1 -type f -name 'q-*.webp' | wc -l | tr -d ' ')
+    q_count=$(find "assets/questions/$folder" -maxdepth 1 -type f -name "q-*.$ext" | wc -l | tr -d ' ')
+    m_count=$(find "assets/markings/$folder" -maxdepth 1 -type f -name "q-*.$ext" | wc -l | tr -d ' ')
 
     [[ "$q_count" == "$expected" ]] || { echo "$folder expected $expected question crops, got $q_count"; return 1; }
     [[ "$m_count" == "$expected" ]] || { echo "$folder expected $expected marking crops, got $m_count"; return 1; }
 
     for i in $(seq 1 "$expected"); do
-      file=$(printf 'q-%02d.webp' "$i")
+      file=$(printf 'q-%02d.%s' "$i" "$ext")
       [[ -s "assets/questions/$folder/$file" ]] || { echo "Missing/empty question asset: $folder/$file"; return 1; }
       [[ -s "assets/markings/$folder/$file" ]] || { echo "Missing/empty marking asset: $folder/$file"; return 1; }
     done
   done
 
-  echo "Verified exact asset map: 21 papers, 126 questions + 126 markings."
+  echo "Verified exact asset map: 22 papers, 132 questions + 132 markings."
   return 0
 }
 
