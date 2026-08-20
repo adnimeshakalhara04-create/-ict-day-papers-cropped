@@ -1,4 +1,4 @@
-const ASSET_VERSION = '20260819-r7';
+const ASSET_VERSION = '20260820-r8';
 
 window.QUIZ_DATA = [
   {n:1,a:[2,3,2,4,2,2,5]},
