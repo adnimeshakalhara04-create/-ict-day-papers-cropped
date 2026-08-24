@@ -7,7 +7,7 @@ ZIP="/tmp/ict-day-papers-assets.zip"
 EXPECTED=(0 7 6 7 7 6 5 5 5 6 6 4 6 6 6 7 7 8 8 4 6 4 6)
 
 count_crops() {
-  find "$1" -type f \( -name '*.webp' -o -name '*.png' \) | wc -l | tr -d ' '
+  find "$1" -type f \( -name '*.webp' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' \) | wc -l | tr -d ' '
 }
 
 verify_assets() {
@@ -24,7 +24,7 @@ verify_assets() {
     folder=$(printf 'phy-%02d' "$n")
     expected=${EXPECTED[$n]}
     ext='webp'
-    [[ "$n" == "22" ]] && ext='png'
+    [[ "$n" == "22" ]] && ext='jpg'
 
     [[ -d "assets/questions/$folder" ]] || { echo "Missing assets/questions/$folder"; return 1; }
     [[ -d "assets/markings/$folder" ]] || { echo "Missing assets/markings/$folder"; return 1; }

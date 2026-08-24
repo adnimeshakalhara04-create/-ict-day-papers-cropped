@@ -1,4 +1,4 @@
-const ASSET_VERSION = '20260820-r8';
+const ASSET_VERSION = '20260824-r9';
 
 window.QUIZ_DATA = [
   {n:1,a:[2,3,2,4,2,2,5]},
@@ -30,7 +30,7 @@ window.QUIZ_DATA = [
   questions:p.a.map((answer,i)=>{
     const folder=`phy-${String(p.n).padStart(2,'0')}`;
     const file=`q-${String(i+1).padStart(2,'0')}`;
-    const ext=p.n===22?'png':'webp';
+    const ext=p.n===22?'jpg':'webp';
     return {
       number:i+1,
       answer,
