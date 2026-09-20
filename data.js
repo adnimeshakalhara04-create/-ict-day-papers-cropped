@@ -1,4 +1,4 @@
-const ASSET_VERSION = '20260824-r9';
+const ASSET_VERSION = '20260920-r10';
 
 window.QUIZ_DATA = [
   {n:1,a:[2,3,2,4,2,2,5]},
@@ -22,7 +22,10 @@ window.QUIZ_DATA = [
   {n:19,a:[1,2,3,1]},
   {n:20,a:[3,1,2,3,2,3]},
   {n:21,a:[4,1,2,2]},
-  {n:22,a:[3,3,5,3,3,2]}
+  {n:22,a:[3,3,5,3,3,2]},
+  {n:23,a:[4,3,2,3,2]},
+  {n:24,a:[2,1,1,4,1]},
+  {n:25,a:[4,2,4,3,5,2]}
 ].map(p => ({
   number:p.n,
   title:`PHY ${String(p.n).padStart(2,'0')}`,
@@ -30,7 +33,7 @@ window.QUIZ_DATA = [
   questions:p.a.map((answer,i)=>{
     const folder=`phy-${String(p.n).padStart(2,'0')}`;
     const file=`q-${String(i+1).padStart(2,'0')}`;
-    const ext=p.n===22?'jpg':'webp';
+    const ext=p.n===22?'jpg':p.n>=23?'png':'webp';
     return {
       number:i+1,
       answer,

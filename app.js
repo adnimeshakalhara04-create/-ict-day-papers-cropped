@@ -6,8 +6,8 @@
   const KEY='ict-day-papers-cropped-v1';
   const total=Array.isArray(data)?data.reduce((s,p)=>s+p.questions.length,0):0;
   const paperCount=Array.isArray(data)?data.length:0;
-  if(!Array.isArray(data)||paperCount<22||total<132){
-    root.innerHTML='<main class="quiz"><section class="stage"><div class="answer-box"><div class="feedback bad"><div class="mark">!</div><div><strong>Quiz data validation failed.</strong><p>Expected 22 day papers and 132 questions. Please refresh after the latest deployment finishes.</p></div></div></div></section></main>';
+  if(!Array.isArray(data)||paperCount<25||total<148){
+    root.innerHTML='<main class="quiz"><section class="stage"><div class="answer-box"><div class="feedback bad"><div class="mark">!</div><div><strong>Quiz data validation failed.</strong><p>Expected 25 day papers and 148 questions. Please refresh after the latest deployment finishes.</p></div></div></div></section></main>';
     return;
   }
 
