@@ -1,4 +1,9 @@
-const ASSET_VERSION = '20260920-r10';
+const ASSET_VERSION = '20260921-r11';
+
+const MARKING_PARTS = {
+  '23-4':2,'23-5':2,'24-2':2,
+  '25-2':2,'25-3':2,'25-4':2,'25-5':2,'25-6':2
+};
 
 window.QUIZ_DATA = [
   {n:1,a:[2,3,2,4,2,2,5]},
@@ -34,11 +39,16 @@ window.QUIZ_DATA = [
     const folder=`phy-${String(p.n).padStart(2,'0')}`;
     const file=`q-${String(i+1).padStart(2,'0')}`;
     const ext=p.n===22?'jpg':p.n>=23?'png':'webp';
+    const partCount=MARKING_PARTS[`${p.n}-${i+1}`]||1;
+    const markings=partCount===1
+      ? [`assets/markings/${folder}/${file}.${ext}?v=${ASSET_VERSION}`]
+      : Array.from({length:partCount},(_,part)=>`assets/markings/${folder}/${file}-${String(part+1).padStart(2,'0')}.${ext}?v=${ASSET_VERSION}`);
     return {
       number:i+1,
       answer,
       question:`assets/questions/${folder}/${file}.${ext}?v=${ASSET_VERSION}`,
-      marking:`assets/markings/${folder}/${file}.${ext}?v=${ASSET_VERSION}`
+      marking:markings[0],
+      markings
     };
   })
 }));
