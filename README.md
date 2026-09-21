@@ -26,3 +26,5 @@ The source archive and both parts are backed up in Google Drive under **ICT Day 
 
 ## PHY 23–25 update
 The verified PHY 23–25 question/marking crops are stored in the shared Google Drive Cropped folder as `PHY 23-25 Crops.zip`. The Vercel build downloads the public bundle, verifies its SHA-256 checksum, extracts it into `assets/`, and validates the complete 25-paper / 148-question asset map before publishing.
+
+<!-- deploy-sync: 2026-09-22 phy01-25-r11 -->
