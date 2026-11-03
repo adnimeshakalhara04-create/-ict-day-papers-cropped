@@ -1,8 +1,10 @@
-const ASSET_VERSION = '20260921-r11';
+const ASSET_VERSION = '20261104-r12';
 
 const MARKING_PARTS = {
   '23-4':2,'23-5':2,'24-2':2,
-  '25-2':2,'25-3':2,'25-4':2,'25-5':2,'25-6':2
+  '25-2':2,'25-3':2,'25-4':2,'25-5':2,'25-6':2,
+  '26-4':2,'26-5':2,'26-7':2,
+  '27-1':2,'27-3':2
 };
 
 window.QUIZ_DATA = [
@@ -30,7 +32,9 @@ window.QUIZ_DATA = [
   {n:22,a:[3,3,5,3,3,2]},
   {n:23,a:[4,3,2,3,2]},
   {n:24,a:[2,1,1,4,1]},
-  {n:25,a:[4,2,4,3,5,2]}
+  {n:25,a:[4,2,4,3,5,2]},
+  {n:26,a:[2,1,3,1,1,2,5,1]},
+  {n:27,a:[4,2,2,2,5,2,1,2]}
 ].map(p => ({
   number:p.n,
   title:`PHY ${String(p.n).padStart(2,'0')}`,
@@ -38,7 +42,7 @@ window.QUIZ_DATA = [
   questions:p.a.map((answer,i)=>{
     const folder=`phy-${String(p.n).padStart(2,'0')}`;
     const file=`q-${String(i+1).padStart(2,'0')}`;
-    const ext=p.n===22?'jpg':p.n>=23?'png':'webp';
+    const ext=p.n===22?'jpg':(p.n>=23&&p.n<=25?'png':'webp');
     const partCount=MARKING_PARTS[`${p.n}-${i+1}`]||1;
     const markings=partCount===1
       ? [`assets/markings/${folder}/${file}.${ext}?v=${ASSET_VERSION}`]
