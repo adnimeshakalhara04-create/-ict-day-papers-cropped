@@ -1,10 +1,10 @@
 # ICT Day Papers — Cropped Quiz App
 
-Fresh quiz app for PHY 01–27 using only the newly cropped original question images and their matching original marking/explanation images.
+Fresh quiz app for PHY 01–32 using only the newly cropped original question images and their matching original marking/explanation images.
 
 ## Included
-- 27 day papers
-- 164 questions
+- 32 day papers
+- 198 questions
 - 5 answer choices each
 - Original Sinhala-containing question crops
 - Matching original marking crops shown after answering
@@ -36,3 +36,12 @@ The verified PHY 23–25 question/marking crops are stored in the shared Google 
 - Crops are copied into each corresponding `PHY 26/27 > Q01–Q08` Google Drive question/marking folder, with multipart explanations kept in order.
 - New immutable crop pack stored under `updates/phy26-27/part-00` through `part-03` and reconstructed/verified by `prepare-assets.sh` during Vercel build.
 - Checksums and original PDFs are retained in the Google Drive Days Paper folders, with a release backup under `PHY 26-27 — Verified Build Assets`.
+
+
+## PHY 28–32 original-PDF update (2026-11-05)
+
+- 5 added papers and 34 questions; 51 matching marking image parts. Updated totals: **32 papers, 198 questions, 228 marking images**.
+- Answers independently checked against the embedded answer table of each source paper and its corresponding marking PDF, never guessed.
+- Original 10 PDF sources committed under `sources/phy28-32/`; `scripts/crop_phy_28_32.py` produces JPG question/marking crops in the existing asset layout at build time.
+- The question crops exclude the answer tables printed at the end of each source paper. Multi-page marking explanations are kept as numbered parts; PHY 30 Q03 and Q05 have three parts.
+- Vercel build uses PyMuPDF 1.26.7 to regenerate source-verified crops and validates counts before publishing; PHY 01–27 originals remain unchanged.

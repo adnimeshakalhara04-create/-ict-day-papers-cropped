@@ -1,10 +1,14 @@
-const ASSET_VERSION = '20261104-r12';
+const ASSET_VERSION = '20261105-r13';
 
 const MARKING_PARTS = {
   '23-4':2,'23-5':2,'24-2':2,
   '25-2':2,'25-3':2,'25-4':2,'25-5':2,'25-6':2,
   '26-4':2,'26-5':2,'26-7':2,
-  '27-1':2,'27-3':2
+  '27-1':2,'27-3':2,
+  '28-3':2,'28-4':2,
+  '29-4':2,'29-5':2,'29-6':2,'29-7':2,'29-8':2,
+  '30-2':2,'30-3':3,'30-5':3,'30-6':2,'30-7':2,
+  '31-1':2,'31-2':2,'32-1':2
 };
 
 window.QUIZ_DATA = [
@@ -34,7 +38,12 @@ window.QUIZ_DATA = [
   {n:24,a:[2,1,1,4,1]},
   {n:25,a:[4,2,4,3,5,2]},
   {n:26,a:[2,1,3,1,1,2,5,1]},
-  {n:27,a:[4,2,2,2,5,2,1,2]}
+  {n:27,a:[4,2,2,2,5,2,1,2]},
+  {n:28,a:[5,1,1,2,1,3,4,2]},
+  {n:29,a:[3,2,4,4,1,5,5,1]},
+  {n:30,a:[1,2,3,3,3,4,2,1]},
+  {n:31,a:[5,1,1,4,2]},
+  {n:32,a:[4,3,4,3,2]}
 ].map(p => ({
   number:p.n,
   title:`PHY ${String(p.n).padStart(2,'0')}`,
@@ -42,7 +51,7 @@ window.QUIZ_DATA = [
   questions:p.a.map((answer,i)=>{
     const folder=`phy-${String(p.n).padStart(2,'0')}`;
     const file=`q-${String(i+1).padStart(2,'0')}`;
-    const ext=p.n===22?'jpg':(p.n>=23&&p.n<=25?'png':'webp');
+    const ext=(p.n===22||p.n>=28)?'jpg':(p.n>=23&&p.n<=25?'png':'webp');
     const partCount=MARKING_PARTS[`${p.n}-${i+1}`]||1;
     const markings=partCount===1
       ? [`assets/markings/${folder}/${file}.${ext}?v=${ASSET_VERSION}`]

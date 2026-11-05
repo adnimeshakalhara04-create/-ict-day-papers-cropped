@@ -4,7 +4,7 @@ set -euo pipefail
 PART0="assets-pack.part-00"
 PART1="assets-pack.part-01"
 ZIP="/tmp/ict-day-papers-assets.zip"
-EXPECTED=(0 7 6 7 7 6 5 5 5 6 6 4 6 6 6 7 7 8 8 4 6 4 6 5 5 6 8 8)
+EXPECTED=(0 7 6 7 7 6 5 5 5 6 6 4 6 6 6 7 7 8 8 4 6 4 6 5 5 6 8 8 8 8 8 5 5)
 
 count_crops() {
   find "$1" -type f \( -name '*.webp' -o -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' \) | wc -l | tr -d ' '
@@ -17,14 +17,14 @@ verify_assets() {
   q_total=$(count_crops assets/questions)
   m_total=$(count_crops assets/markings)
 
-  [[ "$q_total" == "164" ]] || { echo "Expected 164 question crops, got $q_total"; return 1; }
-  [[ "$m_total" == "177" ]] || { echo "Expected 177 marking crops, got $m_total"; return 1; }
+  [[ "$q_total" == "198" ]] || { echo "Expected 198 question crops, got $q_total"; return 1; }
+  [[ "$m_total" == "228" ]] || { echo "Expected 228 marking crops, got $m_total"; return 1; }
 
-  for n in $(seq 1 27); do
+  for n in $(seq 1 32); do
     folder=$(printf 'phy-%02d' "$n")
     expected=${EXPECTED[$n]}
     ext='webp'
-    [[ "$n" == "22" ]] && ext='jpg'
+    [[ "$n" == "22" || "$n" -ge 28 ]] && ext='jpg'
     [[ "$n" -ge 23 && "$n" -le 25 ]] && ext='png'
 
     [[ -d "assets/questions/$folder" ]] || { echo "Missing assets/questions/$folder"; return 1; }
@@ -38,6 +38,11 @@ verify_assets() {
     [[ "$n" == "25" ]] && mark_expected=11
     [[ "$n" == "26" ]] && mark_expected=11
     [[ "$n" == "27" ]] && mark_expected=10
+    [[ "$n" == "28" ]] && mark_expected=10
+    [[ "$n" == "29" ]] && mark_expected=13
+    [[ "$n" == "30" ]] && mark_expected=15
+    [[ "$n" == "31" ]] && mark_expected=7
+    [[ "$n" == "32" ]] && mark_expected=6
 
     [[ "$q_count" == "$expected" ]] || { echo "$folder expected $expected question crops, got $q_count"; return 1; }
     [[ "$m_count" == "$mark_expected" ]] || { echo "$folder expected $mark_expected marking crops, got $m_count"; return 1; }
@@ -46,21 +51,23 @@ verify_assets() {
       file=$(printf 'q-%02d.%s' "$i" "$ext")
       [[ -s "assets/questions/$folder/$file" ]] || { echo "Missing/empty question asset: $folder/$file"; return 1; }
 
+      part_count=1
       case "$n-$i" in
-        23-4|23-5|24-2|25-2|25-3|25-4|25-5|25-6|26-4|26-5|26-7|27-1|27-3)
-          part1=$(printf 'q-%02d-01.%s' "$i" "$ext")
-          part2=$(printf 'q-%02d-02.%s' "$i" "$ext")
-          [[ -s "assets/markings/$folder/$part1" ]] || { echo "Missing/empty marking asset: $folder/$part1"; return 1; }
-          [[ -s "assets/markings/$folder/$part2" ]] || { echo "Missing/empty marking asset: $folder/$part2"; return 1; }
-          ;;
-        *)
-          [[ -s "assets/markings/$folder/$file" ]] || { echo "Missing/empty marking asset: $folder/$file"; return 1; }
-          ;;
+        30-3|30-5) part_count=3 ;;
+        23-4|23-5|24-2|25-2|25-3|25-4|25-5|25-6|26-4|26-5|26-7|27-1|27-3|28-3|28-4|29-4|29-5|29-6|29-7|29-8|30-2|30-6|30-7|31-1|31-2|32-1) part_count=2 ;;
       esac
+      if (( part_count > 1 )); then
+        for part in $(seq 1 "$part_count"); do
+          part_file=$(printf 'q-%02d-%02d.%s' "$i" "$part" "$ext")
+          [[ -s "assets/markings/$folder/$part_file" ]] || { echo "Missing/empty marking asset: $folder/$part_file"; return 1; }
+        done
+      else
+        [[ -s "assets/markings/$folder/$file" ]] || { echo "Missing/empty marking asset: $folder/$file"; return 1; }
+      fi
     done
   done
 
-  echo "Verified exact asset map: 27 papers, 164 questions + 177 marking images."
+  echo "Verified exact asset map: 32 papers, 198 questions + 228 marking images."
   return 0
 }
 
@@ -98,5 +105,13 @@ cat "$EXTRA_PART_DIR"/part-* > "$EXTRA_ZIP"
 echo "a1a0499268d2874c58d5290bbc57c283e09cf39c795002b8ae6d07c2e7ced8c9  $EXTRA_ZIP" | sha256sum -c -
 unzip -tq "$EXTRA_ZIP" >/dev/null
 unzip -q -o "$EXTRA_ZIP" -d .
+
+echo "Generating and source-checking PHY 28-32 crops from original PDFs..."
+if python3 -c 'import fitz; assert tuple(map(int,fitz.VersionBind.split("."))) >= (1,26,0)' >/dev/null 2>&1; then
+  python3 scripts/crop_phy_28_32.py
+else
+  python3 -m pip install --disable-pip-version-check --quiet --target=/tmp/ict-phy-pymupdf "PyMuPDF==1.26.7"
+  PYTHONPATH="/tmp/ict-phy-pymupdf${PYTHONPATH:+:$PYTHONPATH}" python3 scripts/crop_phy_28_32.py
+fi
 
 verify_assets
