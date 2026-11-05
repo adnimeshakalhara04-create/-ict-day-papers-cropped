@@ -37,7 +37,11 @@ def sections(pdf, count, paper=False):
                 y1 = heads[0] - 6
         for pi in range(p0, p1 + 1):
             top = max(41, y0 - 7 if pi == p0 else 45)
-            bottom = min(790, y1 - 7 if pi == p1 else 789)
+            # Keep the complete final answer-option line without including the answer key.
+            if paper and i == len(starts) - 1 and pi == p1:
+                bottom = min(790, y1 + 5)  # 1 pt above the printed 'Answers:' grid
+            else:
+                bottom = min(790, y1 - 7 if pi == p1 else 789)
             # Ignore tiny blank page-edge strips that were mistaken for marking parts.
             if bottom - top > 40:
                 sections[q].append((pi, fitz.Rect(48, top, 549, bottom)))
