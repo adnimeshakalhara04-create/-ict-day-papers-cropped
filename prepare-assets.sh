@@ -18,7 +18,7 @@ verify_assets() {
   m_total=$(count_crops assets/markings)
 
   [[ "$q_total" == "198" ]] || { echo "Expected 198 question crops, got $q_total"; return 1; }
-  [[ "$m_total" == "228" ]] || { echo "Expected 228 marking crops, got $m_total"; return 1; }
+  [[ "$m_total" == "226" ]] || { echo "Expected 226 marking crops, got $m_total"; return 1; }
 
   for n in $(seq 1 32); do
     folder=$(printf 'phy-%02d' "$n")
@@ -40,8 +40,8 @@ verify_assets() {
     [[ "$n" == "27" ]] && mark_expected=10
     [[ "$n" == "28" ]] && mark_expected=10
     [[ "$n" == "29" ]] && mark_expected=13
-    [[ "$n" == "30" ]] && mark_expected=15
-    [[ "$n" == "31" ]] && mark_expected=7
+    [[ "$n" == "30" ]] && mark_expected=14
+    [[ "$n" == "31" ]] && mark_expected=6
     [[ "$n" == "32" ]] && mark_expected=6
 
     [[ "$q_count" == "$expected" ]] || { echo "$folder expected $expected question crops, got $q_count"; return 1; }
@@ -53,8 +53,8 @@ verify_assets() {
 
       part_count=1
       case "$n-$i" in
-        30-3|30-5) part_count=3 ;;
-        23-4|23-5|24-2|25-2|25-3|25-4|25-5|25-6|26-4|26-5|26-7|27-1|27-3|28-3|28-4|29-4|29-5|29-6|29-7|29-8|30-2|30-6|30-7|31-1|31-2|32-1) part_count=2 ;;
+        30-5) part_count=3 ;;
+        23-4|23-5|24-2|25-2|25-3|25-4|25-5|25-6|26-4|26-5|26-7|27-1|27-3|28-3|28-4|29-4|29-5|29-6|29-7|29-8|30-2|30-3|30-6|30-7|31-1|32-1) part_count=2 ;;
       esac
       if (( part_count > 1 )); then
         for part in $(seq 1 "$part_count"); do
@@ -67,7 +67,7 @@ verify_assets() {
     done
   done
 
-  echo "Verified exact asset map: 32 papers, 198 questions + 228 marking images."
+  echo "Verified exact asset map: 32 papers, 198 questions + 226 marking images."
   return 0
 }
 

@@ -17,7 +17,7 @@ The original-quality crop assets are split into two GitHub-upload-safe files:
 - `assets-pack.part-00`
 - `assets-pack.part-01`
 
-Put both files in the repository root. The deployment build runs `prepare-assets.sh`, verifies both SHA-256 hashes, reconstructs the ZIP, extracts `assets/`, and then verifies exactly **164 question crops + 177 marking crops** before publishing. PHY 22 uses the latest original JPEG crops from the Google Drive `Days Paper` folder.
+Put both files in the repository root. The deployment build runs `prepare-assets.sh`, verifies both SHA-256 hashes, reconstructs the ZIP, extracts `assets/`, and then verifies exactly **198 question crops + 226 marking crops** before publishing. PHY 22 uses the latest original JPEG crops from the Google Drive `Days Paper` folder.
 
 The source archive and both parts are backed up in Google Drive under **ICT Day Papers Fresh Quiz App**.
 
@@ -40,8 +40,12 @@ The verified PHY 23–25 question/marking crops are stored in the shared Google 
 
 ## PHY 28–32 original-PDF update (2026-11-05)
 
-- 5 added papers and 34 questions; 51 matching marking image parts. Updated totals: **32 papers, 198 questions, 228 marking images**.
+- 5 added papers and 34 questions; 49 matching marking image parts. Updated totals: **32 papers, 198 questions, 226 marking images**.
 - Answers independently checked against the embedded answer table of each source paper and its corresponding marking PDF, never guessed.
 - Original 10 PDF sources committed under `sources/phy28-32/`; `scripts/crop_phy_28_32.py` produces JPG question/marking crops in the existing asset layout at build time.
-- The question crops exclude the answer tables printed at the end of each source paper. Multi-page marking explanations are kept as numbered parts; PHY 30 Q03 and Q05 have three parts.
+- The question crops exclude the answer tables printed at the end of each source paper. Multi-page marking explanations are kept as numbered parts; PHY 30 Q05 has three parts; PHY 30 Q03 has two parts.
 - Vercel build uses PyMuPDF 1.26.7 to regenerate source-verified crops and validates counts before publishing; PHY 01–27 originals remain unchanged.
+
+### Crop QA correction (2026-11-05)
+
+Verified the generated crops against all original marking PDFs. Two 21-pixel blank page-edge fragments (PHY 30 Q03 and PHY 31 Q02) are no longer generated. Total: **34 added questions and 49 added explanation images**, 226 marking images overall. Original-source answer keys and all existing PHY 01–27 content remain unchanged.

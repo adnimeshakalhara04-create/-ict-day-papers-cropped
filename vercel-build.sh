@@ -8,4 +8,4 @@ mkdir -p dist
 cp index.html styles.css reset.css app.js data.js dist/
 cp -R assets dist/assets
 
-echo "Prepared Vercel output: 32 papers, 198 questions, and 228 marking images (including multi-part explanations)."
+echo "Prepared Vercel output: 32 papers, 198 questions, and 226 marking images (including multi-part explanations)."

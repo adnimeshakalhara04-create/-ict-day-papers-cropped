@@ -38,7 +38,8 @@ def sections(pdf, count, paper=False):
         for pi in range(p0, p1 + 1):
             top = max(41, y0 - 7 if pi == p0 else 45)
             bottom = min(790, y1 - 7 if pi == p1 else 789)
-            if bottom - top > 8:
+            # Ignore tiny blank page-edge strips that were mistaken for marking parts.
+            if bottom - top > 40:
                 sections[q].append((pi, fitz.Rect(48, top, 549, bottom)))
     return sections
 
@@ -95,7 +96,7 @@ def main():
             qc += 1
             mc += len(ms[q])
         print(f"Verified original PHY {n}: {len(answers)} questions")
-    if (qc, mc) != (34, 51):
+    if (qc, mc) != (34, 49):
         raise ValueError(f"Wrong new crop totals: {qc} questions, {mc} markings")
     print(f"Verified original-source PHY 28–32 crops: {qc} questions, {mc} markings.")
 
